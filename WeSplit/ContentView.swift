@@ -14,6 +14,7 @@ struct ContentView: View {
     @State var numberOfPeople: Int = 0
     @State var tipPercentage: Int = 15
     @FocusState private var amountIsFocused: Bool
+    @State var brettIsPresent: Bool = false
     
     var totalWithTip: Double? {
         if let checkAmount = checkAmount {
@@ -24,7 +25,13 @@ struct ContentView: View {
     }
     
     var totalPerPerson: Double? {
-        let peopleCount: Double = Double(numberOfPeople + 2)
+        let peopleCount: Double
+        
+        if brettIsPresent {
+            peopleCount = Double(numberOfPeople + 1)
+        } else {
+            peopleCount = Double(numberOfPeople + 2)
+        }
         
         if let totalWithTip = totalWithTip {
             return totalWithTip/Double(peopleCount)
@@ -47,6 +54,7 @@ struct ContentView: View {
                             Text("\(index)")
                         }
                     }.pickerStyle(.segmented)
+                    Toggle("Is Brett present?", isOn: $brettIsPresent)
                 } header: {
                     Text("How many people?")
                 }
