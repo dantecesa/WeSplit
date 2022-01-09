@@ -13,25 +13,24 @@ struct ContentView: View {
     @State var checkAmount: Double? = nil
     @State var numberOfPeople: Int = 0
     @State var tipPercentage: Int = 15
-    @FocusState private var amountIsFocused: Bool
-    @State var brettIsPresent: Bool = false
+    @FocusState private var numberFieldIsFocused: Bool
+    @State var calculateTipBeforeTax: Bool = false
+    @State var taxPercentage: Double = 0.0985
     
     var totalWithTip: Double? {
-        if let checkAmount = checkAmount {
-            return checkAmount + (checkAmount * (Double(tipPercentage)/100))
-        } else {
+        guard let checkAmount = checkAmount else {
             return nil
+        }
+        
+        if calculateTipBeforeTax {
+            return checkAmount + (checkAmount - (checkAmount * taxPercentage)) * Double(tipPercentage)/100
+        } else {
+            return checkAmount + (checkAmount * (Double(tipPercentage)/100))
         }
     }
     
     var totalPerPerson: Double? {
-        let peopleCount: Double
-        
-        if brettIsPresent {
-            peopleCount = Double(numberOfPeople + 1)
-        } else {
-            peopleCount = Double(numberOfPeople + 2)
-        }
+        let peopleCount = Double(numberOfPeople + 2)
         
         if let totalWithTip = totalWithTip {
             return totalWithTip/Double(peopleCount)
@@ -44,7 +43,7 @@ struct ContentView: View {
         NavigationView {
             Form {
                 Section {
-                    TextField("Amount", value: $checkAmount, format: .currency(code: Locale.current.currencyCode ?? "USD")).keyboardType(.decimalPad).focused($amountIsFocused)
+                    TextField("Amount", value: $checkAmount, format: .currency(code: Locale.current.currencyCode ?? "USD")).keyboardType(.decimalPad).focused($numberFieldIsFocused)
                 } header: {
                     Text("Tell me about the check…")
                 }
@@ -54,7 +53,6 @@ struct ContentView: View {
                             Text("\(index)")
                         }
                     }.pickerStyle(.segmented)
-                    Toggle("Is Brett present?", isOn: $brettIsPresent)
                 } header: {
                     Text("How many people?")
                 }
@@ -65,6 +63,14 @@ struct ContentView: View {
                             Text($0, format: .percent)
                         }
                     }.pickerStyle(.segmented)
+                    Toggle("Exclude tax?", isOn: $calculateTipBeforeTax)
+                    if calculateTipBeforeTax {
+                        HStack {
+                            Text("Tax Amount")
+                            Spacer()
+                            TextField("Tax", value: $taxPercentage, format: .percent).keyboardType(.decimalPad).focused($numberFieldIsFocused).multilineTextAlignment(.trailing)
+                        }
+                    }
                 } header: {
                     Text("How much tip are we leaving?")
                 }
@@ -83,7 +89,7 @@ struct ContentView: View {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
                     Button("Done") {
-                        amountIsFocused = false
+                        numberFieldIsFocused = false
                     }
                 }
             }
