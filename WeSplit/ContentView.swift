@@ -63,7 +63,7 @@ struct ContentView: View {
                             Text($0, format: .percent)
                         }
                     }.pickerStyle(.segmented)
-                    Toggle("Exclude tax?", isOn: $calculateTipBeforeTax)
+                    Toggle("Exclude tax?", isOn: $calculateTipBeforeTax.animation())
                     if calculateTipBeforeTax {
                         HStack {
                             Text("Tax Amount")
