@@ -10,11 +10,11 @@ import SwiftUI
 struct ContentView: View {
     let tipPercentages: [Int] = [0, 10, 15, 20, 25]
     let maxNumberOfPeople: Int = 10
-    @State var checkAmount: Double? = nil
-    @State var numberOfPeople: Int = 0
-    @State var tipPercentage: Int = 15
+    @AppStorage("checkAmount") var checkAmount: Double?
+    @AppStorage("numberOfPeople") var numberOfPeople: Int = 0
+    @AppStorage("tipPercentage") var tipPercentage: Int = 15
     @FocusState private var numberFieldIsFocused: Bool
-    @State var calculateTipBeforeTax: Bool = false
+    @AppStorage("calculateTipBeforeTax") var calculateTipBeforeTax: Bool = false
     @State var taxPercentage: Double = 0.0985
     
     var totalWithTip: Double? {
