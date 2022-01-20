@@ -8,14 +8,19 @@
 import SwiftUI
 
 struct ContentView: View {
-    let tipPercentages: [Int] = [0, 10, 15, 20, 25]
-    let maxNumberOfPeople: Int = 10
     @AppStorage("checkAmount") var checkAmount: Double?
+    
     @AppStorage("numberOfPeople") var numberOfPeople: Int = 0
+    let maxNumberOfPeople: Int = 10
+    
+    let tipPercentages: [Int] = [0, 10, 15, 20, 25]
     @AppStorage("tipPercentage") var tipPercentage: Int = 15
-    @FocusState private var numberFieldIsFocused: Bool
+    
     @AppStorage("calculateTipBeforeTax") var calculateTipBeforeTax: Bool = false
     @State var taxPercentage: Double = 0.0985
+    
+    @FocusState private var numberFieldIsFocused: Bool
+    @StateObject var paperTape = PaperTape()
     
     var totalWithTip: Double? {
         guard let checkAmount = checkAmount else {
@@ -43,7 +48,9 @@ struct ContentView: View {
         NavigationView {
             Form {
                 Section {
-                    TextField("Amount", value: $checkAmount, format: .currency(code: Locale.current.currencyCode ?? "USD")).keyboardType(.decimalPad).focused($numberFieldIsFocused)
+                    TextField("Amount", value: $checkAmount, format: .currency(code: Locale.current.currencyCode ?? "USD"))
+                        .keyboardType(.decimalPad)
+                        .focused($numberFieldIsFocused)
                 } header: {
                     Text("Tell me about the check…")
                 }
@@ -74,9 +81,15 @@ struct ContentView: View {
                 } header: {
                     Text("How much tip are we leaving?")
                 }
-
+                
                 Section {
-                    Text(totalWithTip ?? 0.00, format: .currency(code: Locale.current.currencyCode ?? "USD"))
+                    HStack {
+                        Text(totalWithTip ?? 0.00, format: .currency(code: Locale.current.currencyCode ?? "USD"))
+                        Spacer()
+                        Button("Save") {
+                            paperTape.items.append(PaperTapeItem(amount: totalWithTip ?? 0, dateTime: Date.now))
+                        }
+                    }
                 } header: {
                     Text("Total with Tip")
                 }
@@ -85,14 +98,23 @@ struct ContentView: View {
                 } header: {
                     Text("Total per Person")
                 }
-            }.navigationTitle("WeSplit").toolbar {
+            }.navigationTitle("WeSplit")
+                .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
                     Button("Done") {
                         numberFieldIsFocused = false
                     }
                 }
-            }
+                    ToolbarItemGroup(
+                        placement: .navigationBarTrailing,
+                        content: {
+                            NavigationLink("Paper Tape") {
+                                PaperTapeView(paperTape: paperTape)
+                            }
+                        }
+                    )
+                }
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }
