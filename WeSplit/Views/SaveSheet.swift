@@ -14,13 +14,21 @@ struct SaveSheet: View {
     let paperTape: PaperTape
     
     var body: some View {
-        VStack {
-            TextField("I'm a text", text: $name)
-            Button("Save") {
-                itemToSave.name = name
-                paperTape.items.insert(itemToSave, at: 0)
-                dismiss()
-            }.disabled(name.count < 1)
+        NavigationView {
+            VStack {
+                Form {
+                    Section {
+                        TextField("Enter a name", text: $name)
+                    }
+                }
+            }.navigationTitle("Save Split")
+                .toolbar {
+                    Button("Save") {
+                        itemToSave.name = name
+                        paperTape.items.insert(itemToSave, at: 0)
+                        dismiss()
+                    }.disabled(name.count < 1)
+                }
         }
     }
 }
