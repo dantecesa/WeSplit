@@ -10,8 +10,8 @@ import SwiftUI
 struct ContentView: View {
     @AppStorage("checkAmount") var checkAmount: Double?
     
-    @AppStorage("numberOfPeople") var numberOfPeople: Int = 0
     let maxNumberOfPeople: Int = 10
+    @AppStorage("numberOfPeople") var numberOfPeople: Int = 0
     
     let tipPercentages: [Int] = [0, 10, 15, 20, 25]
     @AppStorage("tipPercentage") var tipPercentage: Int = 15
@@ -20,7 +20,9 @@ struct ContentView: View {
     @State var taxPercentage: Double = 0.0985
     
     @FocusState private var numberFieldIsFocused: Bool
-    @StateObject var paperTape = PaperTape()
+    var paperTape = PaperTape()
+    
+    @State var showSaveSheet: Bool = false
     
     var totalWithTip: Double? {
         guard let checkAmount = checkAmount else {
@@ -87,7 +89,7 @@ struct ContentView: View {
                         Text(totalWithTip ?? 0.00, format: .currency(code: Locale.current.currencyCode ?? "USD"))
                         Spacer()
                         Button("Save") {
-                            paperTape.items.append(PaperTapeItem(amount: totalWithTip ?? 0, dateTime: Date.now))
+                            showSaveSheet = true
                         }
                     }
                 } header: {
@@ -117,6 +119,11 @@ struct ContentView: View {
                 }
         }
         .navigationViewStyle(StackNavigationViewStyle())
+        .sheet(isPresented: $showSaveSheet) {
+            let itemToSave: PaperTapeItem = PaperTapeItem(name: "", checkAmount: checkAmount ?? 0, numberOfPeople: numberOfPeople, tipPercentage: tipPercentage, includeTax: calculateTipBeforeTax, taxAmount: taxPercentage, totalWithTip: totalWithTip ?? 0, totalPerPerson: totalPerPerson ?? 0, dateTime: Date.now)
+            
+            SaveSheet(itemToSave: itemToSave, paperTape: paperTape)
+        }
     }
 }
 

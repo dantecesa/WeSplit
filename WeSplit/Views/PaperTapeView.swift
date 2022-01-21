@@ -13,17 +13,30 @@ struct PaperTapeView: View {
     var body: some View {
         List {
             ForEach(paperTape.items) { item in
-                HStack {
-                    Text("\(item.amount, format: .currency(code: Locale.current.currencyCode ?? "USD"))")
-                    Spacer()
-                    Text("\(item.dateTime, style: .date)")
-                        .foregroundColor(.secondary)
-                }
+                NavigationLink(destination: {
+                    PaperTapeItemView(currentPaperTapeItem: item)
+                }, label: {
+                    
+                    HStack {
+                        VStack (alignment: .leading) {
+                            Text(item.name)
+                            Text("\(item.dateTime, style: .date)")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                        Text("\(item.totalWithTip, format: .currency(code: Locale.current.currencyCode ?? "USD"))")
+                    }
+                })
             }.onDelete(perform: removeItems)
-        }
-        .navigationTitle("Paper Tape")
-        .toolbar {
-            EditButton()
+        }.navigationTitle("Paper Tape")
+            .toolbar {
+                EditButton()
+            }
+        if paperTape.items.count > 0 {
+            Button("Remove All") {
+                paperTape.items.removeAll()
+            }
         }
     }
     
